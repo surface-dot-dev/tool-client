@@ -8,7 +8,8 @@ export const PERFORMING_TOOL_CALL_FAILED = 'Failed to perform tool call';
 
 export const TOOL_CALL_RETURNED_ERROR = 'Tool call returned error';
 
-export const UNSUPPORTED_TOOL_CALL_RESULT_CONTENT_TYPE = 'Unsupported tool call result content type';
+export const UNSUPPORTED_TOOL_CALL_RESULT_CONTENT_TYPE =
+  'Unsupported tool call result content type';
 
 export const ERROR_PARSING_TOOL_RESPONSE = 'Error parsing tool response';
 

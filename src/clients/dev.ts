@@ -16,16 +16,16 @@ class DevClient {
   constructor() {
     // Get envs required to spin up the MCP server process.
     const [command, args, envVars] = [
-      ev(env.MCP_SERVER_COMMAND, ''), 
-      undelimit(ev(env.MCP_SERVER_ARGS, '')).filter(v => !!v),
-      undelimit(ev(env.MCP_SERVER_ENV_VARS, '')).filter(v => !!v),
+      ev(env.MCP_SERVER_COMMAND, ''),
+      undelimit(ev(env.MCP_SERVER_ARGS, '')).filter((v) => !!v),
+      undelimit(ev(env.MCP_SERVER_ENV_VARS, '')).filter((v) => !!v),
     ];
-    
+
     // Build custom map of envs to give to server process.
     const envs: Record<string, string> = {};
-    envVars.forEach(name => {
+    envVars.forEach((name) => {
       envs[name] = ev(name, '');
-    })
+    });
     this.serverParams = { command, args, envs };
   }
 
@@ -46,7 +46,9 @@ class DevClient {
       await this.client.connect(transport);
       this.isInitialized = true;
     } catch (e: unknown) {
-      throw formatError(errors.MCP_CONNECTION_ERROR, e, { serverParams: stringify(this.serverParams) });
+      throw formatError(errors.MCP_CONNECTION_ERROR, e, {
+        serverParams: stringify(this.serverParams),
+      });
     }
   }
 
@@ -79,7 +81,10 @@ class DevClient {
     // Parse response according to given output schema.
     const parsed = outputSchema.safeParse(text);
     if (!parsed.success) {
-      throw formatError(errors.ERROR_PARSING_TOOL_RESPONSE, parsed.error, { ...errorParams, content });
+      throw formatError(errors.ERROR_PARSING_TOOL_RESPONSE, parsed.error, {
+        ...errorParams,
+        content,
+      });
     }
 
     return parsed.data as O;

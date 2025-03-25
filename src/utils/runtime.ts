@@ -6,5 +6,5 @@ declare global {
   }
 }
 
-export const isSwiftRuntime = (): boolean => 
+export const isSwiftRuntime = (): boolean =>
   !!(window?.webkit?.messageHandlers && typeof window.webkit.messageHandlers === 'object');

@@ -10,4 +10,4 @@ export interface Client {
 
 export const getClient = (): Client => {
   return isSwiftRuntime() ? new SwiftClient() : new DevClient();
-}
+};

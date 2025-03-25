@@ -26,7 +26,7 @@ export type ServerParams = {
 
 export enum ToolCallResultContentType {
   Text = 'text',
-};
+}
 
 export type ToolCallResultContent = {
   type: ToolCallResultContentType;
