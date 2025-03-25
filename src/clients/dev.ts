@@ -1,12 +1,12 @@
 import { ev, undelimit, formatError, safeJsonStringify as stringify } from '@surface.dev/utils';
-import { CallToolParams, ServerParams, ToolCallResult, ToolCallResultContentType } from '../types';
+import { CallToolParams, StdioServerParams, ToolCallResult, ToolCallResultContentType } from '../types';
 import * as errors from '../errors';
 import * as env from '../utils/env';
 
 class DevClient {
   private client: any = null;
   private isInitialized: boolean = false;
-  private serverParams: ServerParams;
+  private serverParams: StdioServerParams;
 
   get serverConfigured(): boolean {
     const { command, args } = this.serverParams;
@@ -14,19 +14,18 @@ class DevClient {
   }
 
   constructor() {
-    // Get envs required to spin up the MCP server process.
-    const [command, args, envVars] = [
-      ev(env.MCP_SERVER_COMMAND, ''),
-      undelimit(ev(env.MCP_SERVER_ARGS, '')).filter((v) => !!v),
-      undelimit(ev(env.MCP_SERVER_ENV_VARS, '')).filter((v) => !!v),
-    ];
-
-    // Build custom map of envs to give to server process.
-    const envs: Record<string, string> = {};
-    envVars.forEach((name) => {
-      envs[name] = ev(name, '');
+    // Populate map of env vars to give to the server process.
+    const envsMap: Record<string, string> = {};
+    const envNames = undelimit(ev(env.STDIO_SERVER_ENV_VARS, '')).filter((v) => !!v);
+    envNames.forEach((name) => {
+      envsMap[name] = ev(name, '');
     });
-    this.serverParams = { command, args, envs };
+
+    this.serverParams = { 
+      command: 'node', 
+      args: undelimit(ev(env.STDIO_SERVER_ARGS, '')).filter((v) => !!v),
+      envs: envsMap,
+    };
   }
 
   async init() {
@@ -40,9 +39,10 @@ class DevClient {
       const { Client } = await import('@modelcontextprotocol/sdk/client/index');
       this.client = new Client({ name: 'dev-client', version: '1.0.0' });
 
-      // Define & connect to MCP server process (stdio transport).
+      // Define MCP server process (via stdio transport).
       const { StdioClientTransport } = await import('@modelcontextprotocol/sdk/client/stdio');
       const transport = new StdioClientTransport(this.serverParams);
+
       await this.client.connect(transport);
       this.isInitialized = true;
     } catch (e: unknown) {
@@ -57,7 +57,7 @@ class DevClient {
       throw errors.MCP_CLIENT_NOT_INITIALIZED;
     }
 
-    // Call tool and handle MCP-level errors.
+    // Call tool and handle *MCP-level* errors.
     const errorParams = { name, input: stringify(input || {}) };
     let result: ToolCallResult;
     try {
@@ -73,12 +73,12 @@ class DevClient {
       throw formatError(errors.UNSUPPORTED_TOOL_CALL_RESULT_CONTENT_TYPE, type, errorParams);
     }
 
-    // Handle tool-level errors.
+    // Handle *tool-level* errors (i.e. "failed successfully").
     if (result.isError) {
       throw formatError(errors.TOOL_CALL_RETURNED_ERROR, text || errors.UNKNOWN_ERROR, errorParams);
     }
 
-    // Parse response according to given output schema.
+    // Parse according to given output schema.
     const parsed = outputSchema.safeParse(text);
     if (!parsed.success) {
       throw formatError(errors.ERROR_PARSING_TOOL_RESPONSE, parsed.error, {

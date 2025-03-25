@@ -18,7 +18,7 @@ export type CallToolParams<I> = {
   dataSource: DataSourceParams;
 };
 
-export type ServerParams = {
+export type StdioServerParams = {
   command: string;
   args: string[];
   envs: Record<string, string>;
