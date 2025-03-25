@@ -1,5 +1,10 @@
 import { ev, undelimit, formatError, safeJsonStringify as stringify } from '@surface.dev/utils';
-import { CallToolParams, StdioServerParams, ToolCallResult, ToolCallResultContentType } from '../types';
+import {
+  CallToolParams,
+  StdioServerParams,
+  ToolCallResult,
+  ToolCallResultContentType,
+} from '../types';
 import * as errors from '../errors';
 import * as env from '../utils/env';
 
@@ -21,8 +26,8 @@ class DevClient {
       envsMap[name] = ev(name, '');
     });
 
-    this.serverParams = { 
-      command: 'node', 
+    this.serverParams = {
+      command: 'node',
       args: undelimit(ev(env.STDIO_SERVER_ARGS, '')).filter((v) => !!v),
       envs: envsMap,
     };
