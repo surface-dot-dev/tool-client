@@ -8,6 +8,13 @@ import {
 import * as errors from '../errors';
 import * as env from '../utils/env';
 
+const DEFAULT_CLIENT_OPTS = {
+  capabilities: {
+    tools: {},
+    resources: {},
+  },
+};
+
 class DevClient {
   private client: any = null;
   private isInitialized: boolean = false;
@@ -42,7 +49,7 @@ class DevClient {
     try {
       // Instantiate MCP client.
       const { Client } = await import('@modelcontextprotocol/sdk/client/index');
-      this.client = new Client({ name: 'dev-client', version: '1.0.0' });
+      this.client = new Client({ name: 'dev-client', version: '1.0.0' }, DEFAULT_CLIENT_OPTS);
 
       // Define MCP server process (via stdio transport).
       const { StdioClientTransport } = await import('@modelcontextprotocol/sdk/client/stdio');
@@ -50,8 +57,8 @@ class DevClient {
 
       await this.client.connect(transport);
       this.isInitialized = true;
-    } catch (e: unknown) {
-      throw formatError(errors.MCP_CONNECTION_ERROR, e, {
+    } catch (err: unknown) {
+      throw formatError(errors.MCP_CONNECTION_ERROR, err, {
         serverParams: stringify(this.serverParams),
       });
     }
@@ -67,8 +74,8 @@ class DevClient {
     let result: ToolCallResult;
     try {
       result = await this.client.callTool({ name, arguments: input || {} });
-    } catch (e: unknown) {
-      throw formatError(errors.PERFORMING_TOOL_CALL_FAILED, e, errorParams);
+    } catch (err: unknown) {
+      throw formatError(errors.PERFORMING_TOOL_CALL_FAILED, err, errorParams);
     }
 
     // Ensure response is of type "text".
