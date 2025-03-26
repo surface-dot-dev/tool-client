@@ -48,11 +48,11 @@ class DevClient {
 
     try {
       // Instantiate MCP client.
-      const { Client } = await import('@modelcontextprotocol/sdk/client/index');
+      const { Client } = await import('@modelcontextprotocol/sdk/client/index.js');
       this.client = new Client({ name: 'dev-client', version: '1.0.0' }, DEFAULT_CLIENT_OPTS);
 
       // Define MCP server process (via stdio transport).
-      const { StdioClientTransport } = await import('@modelcontextprotocol/sdk/client/stdio');
+      const { StdioClientTransport } = await import('@modelcontextprotocol/sdk/client/stdio.js');
       const transport = new StdioClientTransport(this.serverParams);
 
       await this.client.connect(transport);
